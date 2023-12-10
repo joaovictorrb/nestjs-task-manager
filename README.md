@@ -118,6 +118,23 @@ Singleton when wrapped with @Injectable and provided to a module.
 
 A service will be called from a controller to validate data, create an item in the db, etc.
 
+## NESTJS PIPES
+
+Operate on the arguments to be processed by the route handler, just before the handler is called.
+Can perform data transformation or data validation.
+Can return data - either original or modified - which will be passed on to the route handler.
+Can throw exceptions. 
+Can be Async.
+
+
+Parameter-level pipes: Tend to be slimmer and cleaner. However, they often result in extra code added to handlers - this can get hard to maintain.
+
+Handler-level pipes require some more code, but provide some great benefits:
+  - Do not require extra code at the param level.
+  - Easier to maintain and expand. 
+  - Responsibility of identifying the arguments to process is shifted to one central file - the pipe file
+  - Promote usage of DTOs which is very good practice.
+
 ## License
 
 Nest is [MIT licensed](LICENSE).

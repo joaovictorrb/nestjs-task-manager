@@ -9,7 +9,7 @@ export class TasksController {
     constructor(private tasksService: TasksService) {}
 
     // localhost:3000/tasks
-    @Get() 
+    @Get()
     getTasks(
         @Query() filterDto: GetTasksFilterDto
     ): Task[] {

@@ -31,7 +31,6 @@ export class TasksServiceV2 {
         return tasks;
     }
 
-    // interacts with db, so async
     async getTaskById(id: string): Promise<TaskEntity> {
         const hasTask = await this.taskRepository.findOneBy({id});
         console.log(hasTask);
@@ -57,7 +56,6 @@ export class TasksServiceV2 {
     }
 
     async updateTaskStatus(id: string, status: TaskStatus): Promise<TaskEntity> {
-        // await is not needed in NestJS
         let task = await this.getTaskById(id);
         task.status = status;
 

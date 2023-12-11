@@ -16,7 +16,7 @@ export const databaseProviders = [
         ],
         // Setting synchronize: true shouldn't be used in 
         // production - otherwise you can lose production data.
-        synchronize: true,
+        synchronize: true
       });
 
       return dataSource.initialize();

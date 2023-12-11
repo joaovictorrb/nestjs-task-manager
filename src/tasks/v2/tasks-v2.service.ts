@@ -1,38 +1,68 @@
-import { InjectRepository } from "@nestjs/typeorm";
-import { Task } from "./task.entity";
-import { NotFoundException } from "@nestjs/common";
+import { TaskEntity } from "./task.entity";
 import { CreateTaskDto } from "../dto/create-task.dto";
-import { TaskStatus } from "./task-status.enum";
+import { BadRequestException, Inject, NotFoundException } from "@nestjs/common";
 import { Repository } from "typeorm";
+import { TaskStatus } from "./task-status.enum";
+import { GetTasksFilterDto } from "../dto/get-tasks-filter.dto";
 
 export class TasksServiceV2 {
     constructor(
-        @InjectRepository(Task)
-        private taskRepository: Repository<Task>,
+        @Inject('TASK_REPOSITORY')
+        private taskRepository: Repository<TaskEntity>,
     ) {}
 
-    // interacts with db, so async
-    async getTaskById(id: string): Promise<Task> {
-        const foundTask = await this.taskRepository.findOneBy({id});
+    async  getTasks(filterDto: GetTasksFilterDto): Promise<TaskEntity[]> {
+        const { status, search } = filterDto;
 
-        if(!foundTask) throw new NotFoundException();
+        const query = this.taskRepository.createQueryBuilder('task');
 
-        return foundTask;
+        if (status) {
+            query.andWhere('task.status = :status', { status });
+        }
+
+        if (search) {
+        query.andWhere(
+            'LOWER(task.title) LIKE LOWER(:search) OR LOWER(task.description) LIKE LOWER(:search)',
+            { search: `%${search}%` },
+        );
+        }
+
+        const tasks = await query.getMany();
+        return tasks;
     }
 
+    // interacts with db, so async
+    async getTaskById(id: string): Promise<TaskEntity> {
+        const hasTask = await this.taskRepository.findOneBy({id});
+        console.log(hasTask);
+        if(!hasTask) throw new NotFoundException();
 
-    async createNewTask(input: CreateTaskDto): Promise<Task> {
+        return hasTask;
+    }
 
-        // another way to do it is creating a file repository and adding all db methods
-        // into this file. 
-        // then call those methods when needed
-        const task = this.taskRepository.create({
+    async createNewTask(input: CreateTaskDto): Promise<TaskEntity> {
+        const task = await this.taskRepository.create({
             ...input,
             status: TaskStatus.OPEN
         });
 
         await this.taskRepository.save(task);
 
+        return task;
+    }
+
+    async deleteTask(id: string): Promise<void> {
+        const wasDeleted = await this.taskRepository.delete({id});
+        if(wasDeleted.affected === 0) throw new NotFoundException(`Task with ID "${id}" not found`);
+    }
+
+    async updateTaskStatus(id: string, status: TaskStatus): Promise<TaskEntity> {
+        // await is not needed in NestJS
+        let task = await this.getTaskById(id);
+        task.status = status;
+
+        await this.taskRepository.save(task);
+    
         return task;
     }
 }

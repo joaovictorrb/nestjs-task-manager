@@ -14,7 +14,7 @@ export class TasksControllerV2 {
       return this.tasksService.getTasks(filterDto);
     }
 
-    @Get('/:id')
+    @Get(':id')
     async getTaskById(
         @Param('id') id: string
     ): Promise<TaskEntity> {
@@ -25,18 +25,17 @@ export class TasksControllerV2 {
     async createNewTask(
         @Body() createTaskDto: CreateTaskDto
     ): Promise<TaskEntity> {
-        console.log("Testing");
         return await this.tasksService.createNewTask(createTaskDto);
     }
 
-    @Delete('/:id')
+    @Delete(':id')
     async deleteTask (
         @Param('id') id: string
     ): Promise<void> {
         this.tasksService.deleteTask(id);
     }
     
-    @Patch('/:id/status')
+    @Patch(':id/status')
     async updateTaskStatus(
         @Param('id') id: string,
         @Body() input: UpdateTaskStatusDto

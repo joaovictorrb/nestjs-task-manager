@@ -21,10 +21,11 @@ export class TasksServiceV2 {
         }
 
         if (search) {
-        query.andWhere(
-            'LOWER(task.title) LIKE LOWER(:search) OR LOWER(task.description) LIKE LOWER(:search)',
-            { search: `%${search}%` },
-        );
+            // Like === not exact match (partial match)
+            query.andWhere(
+                'LOWER(task.title) LIKE LOWER(:search) OR LOWER(task.description) LIKE LOWER(:search)',
+                { search: `%${search}%` },
+            );
         }
 
         const tasks = await query.getMany();
@@ -33,7 +34,7 @@ export class TasksServiceV2 {
 
     async getTaskById(id: string): Promise<TaskEntity> {
         const hasTask = await this.taskRepository.findOneBy({id});
-        console.log(hasTask);
+        
         if(!hasTask) throw new NotFoundException();
 
         return hasTask;

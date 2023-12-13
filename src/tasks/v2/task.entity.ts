@@ -1,6 +1,7 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { TaskStatus } from "./task-status.enum";
 import { UserEntity } from "src/auth/user.entity";
+import { Exclude } from "class-transformer";
 
 @Entity()
 export class TaskEntity {
@@ -23,5 +24,7 @@ export class TaskEntity {
         user => user.tasks,
         {eager: false}
     )
+    // whenever object is printed, excludes user properties
+    @Exclude({toPlainOnly: true }) 
     user: UserEntity;
 }

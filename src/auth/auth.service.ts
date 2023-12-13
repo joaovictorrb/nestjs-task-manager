@@ -3,18 +3,21 @@ import {
     Inject, 
     Injectable, 
     InternalServerErrorException, 
-    UnauthorizedException
+    UnauthorizedException,
 } from '@nestjs/common';
 import { UserEntity } from './user.entity';
 import { Repository } from 'typeorm';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
+import { JwtPayload } from './jwt-payload.interface';
 
 @Injectable()
 export class AuthService {
     constructor(
         @Inject('USER_REPOSITORY')
         private userRepository: Repository<UserEntity>,
+        private jwtService: JwtService,
     ) {}
 
     async signUp(input: AuthCredentialsDto): Promise<void> {
@@ -34,11 +37,15 @@ export class AuthService {
         }
     }
 
-    async signIn(input: AuthCredentialsDto): Promise<string> {
+    async signIn(input: AuthCredentialsDto): Promise<{accessToken: string}> {
         const {username, password} = input;
         const hasUser = await this.userRepository.findOneBy({username});
         
-        if(hasUser && (await bcrypt.compare(password, hasUser.password))) return 'success';
+        if(hasUser && (await bcrypt.compare(password, hasUser.password))) {
+            const payload: JwtPayload = {username};
+            const accessToken: string = await this.jwtService.sign(payload)
+            return {accessToken};
+        }
 
         throw new UnauthorizedException('Username or password mismatch');
     }

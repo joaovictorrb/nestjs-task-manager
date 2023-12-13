@@ -4,6 +4,7 @@ import { BadRequestException, Inject, NotFoundException } from "@nestjs/common";
 import { Repository } from "typeorm";
 import { TaskStatus } from "./task-status.enum";
 import { GetTasksFilterDto } from "../dto/get-tasks-filter.dto";
+import { UserEntity } from "src/auth/user.entity";
 
 export class TasksServiceV2 {
     constructor(
@@ -40,10 +41,11 @@ export class TasksServiceV2 {
         return hasTask;
     }
 
-    async createNewTask(input: CreateTaskDto): Promise<TaskEntity> {
+    async createNewTask(input: CreateTaskDto, user: UserEntity): Promise<TaskEntity> {
         const task = await this.taskRepository.create({
             ...input,
-            status: TaskStatus.OPEN
+            status: TaskStatus.OPEN,
+            user // link user to task
         });
 
         await this.taskRepository.save(task);

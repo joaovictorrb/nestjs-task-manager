@@ -1,8 +1,8 @@
-import { 
-    ConflictException, 
-    Inject, 
-    Injectable, 
-    InternalServerErrorException, 
+import {
+    ConflictException,
+    Inject,
+    Injectable,
+    InternalServerErrorException,
     UnauthorizedException,
 } from '@nestjs/common';
 import { UserEntity } from './user.entity';
@@ -22,29 +22,30 @@ export class AuthService {
 
     async signUp(input: AuthCredentialsDto): Promise<void> {
         try {
-            const {username, password} = input;
+            const { username, password } = input;
             const salt = await bcrypt.genSalt();
             const hashedPassword = await bcrypt.hash(password, salt);
             const user = await this.userRepository.create({
                 username,
-                password: hashedPassword
+                password: hashedPassword,
             });
 
             await this.userRepository.save(user);
         } catch (error) {
-            if (error.code === '23505') throw new ConflictException('Username already exists');
+            if (error.code === '23505')
+                throw new ConflictException('Username already exists');
             throw new InternalServerErrorException();
         }
     }
 
-    async signIn(input: AuthCredentialsDto): Promise<{accessToken: string}> {
-        const {username, password} = input;
-        const hasUser = await this.userRepository.findOneBy({username});
-        
-        if(hasUser && (await bcrypt.compare(password, hasUser.password))) {
-            const payload: JwtPayload = {username};
-            const accessToken: string = await this.jwtService.sign(payload)
-            return {accessToken};
+    async signIn(input: AuthCredentialsDto): Promise<{ accessToken: string }> {
+        const { username, password } = input;
+        const hasUser = await this.userRepository.findOneBy({ username });
+
+        if (hasUser && (await bcrypt.compare(password, hasUser.password))) {
+            const payload: JwtPayload = { username };
+            const accessToken: string = await this.jwtService.sign(payload);
+            return { accessToken };
         }
 
         throw new UnauthorizedException('Username or password mismatch');

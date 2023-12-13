@@ -14,40 +14,45 @@ export class TasksServiceV1 {
     }
 
     getTaskWithFilters(filterDto: GetTasksFilterDto): Task[] {
-        const {status, search} = filterDto;
+        const { status, search } = filterDto;
         let tasks = this.getAllTasks();
 
-        if(status) {
+        if (status) {
             tasks = tasks.filter((task) => task.status === status);
         }
 
-        if(search) { // it is case sensitive
+        if (search) {
+            // it is case sensitive
             tasks = tasks.filter((task) => {
-                if(task.title.includes(search) || task.description.includes(search)) return true;
+                if (
+                    task.title.includes(search) ||
+                    task.description.includes(search)
+                )
+                    return true;
                 return false;
             });
         }
 
         return tasks;
     }
-    
+
     getTaskById(id: string): Task {
         const hasTask = this.tasks.find((task) => task.id === id);
 
-        if(!hasTask){
+        if (!hasTask) {
             throw new NotFoundException(`Task Id - [${id}] - not found`);
         }
         return hasTask;
     }
 
     createTask(input: CreateTaskDto): Task {
-        const {title, description} = input;
+        const { title, description } = input;
 
-        const task: Task ={
+        const task: Task = {
             id: uuid(),
             title,
             description,
-            status: TaskStatus.OPEN
+            status: TaskStatus.OPEN,
         };
 
         this.tasks.push(task);

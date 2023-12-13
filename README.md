@@ -135,6 +135,19 @@ Handler-level pipes require some more code, but provide some great benefits:
   - Responsibility of identifying the arguments to process is shifted to one central file - the pipe file
   - Promote usage of DTOs which is very good practice.
 
+## LOGGIN
+
+Log - General purpose logging of important info.
+
+Warning - Unhandled issue that is NOT fatal or destructive
+
+Error - Unhandled issue that is fatal or destructive
+
+Debug - Useful info that can help us debug the logic in case of an error/warning. Intended for Devs
+
+Verbose - Info providing insights about the behavior of the application. Intended for operators.
+
+
 ## License
 
 Nest is [MIT licensed](LICENSE).
